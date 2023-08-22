@@ -1,0 +1,97 @@
+from decimal import Decimal
+
+class CuentaBancaria:
+    def __init__(self, numero_cuenta, saldo_inicial, titular):
+        self.numero_cuenta = numero_cuenta
+        self.saldo = saldo_inicial
+        self.titular = titular
+
+    def depositar(self, monto):
+        
+        if monto > 0:
+            (self.saldo) = round(self.saldo + monto, 2)
+            print(f"Depósito de {monto} realizado. Saldo actual: {self.saldo}")
+        else:
+            print("El monto debe ser positivo para realizar un depósito.")
+
+    def retirar(self, monto):
+        if 0 < monto <= self.saldo:
+            self.saldo = round(self.saldo - monto)
+            print(f"Retiro de {monto} realizado. Saldo actual: {self.saldo}")
+        else:
+            print("Fondos insuficientes o monto inválido para realizar un retiro.")
+
+    def obtener_saldo(self):
+        return self.saldo
+
+    def transferir(self, otra_cuenta, monto):
+        if 0 < monto <= self.saldo:
+            self.saldo = round(self.saldo - monto)
+            otra_cuenta.depositar(monto)
+            print(f"Transferencia de {monto} realizada.")
+        else:
+            print("Fondos insuficientes o monto inválido para realizar la transferencia.")
+
+# Diccionario para almacenar cuentas por número de cuenta
+cuentas = {}
+
+while True:
+    print("\nMenu:")
+    print("1. Crear cuenta")
+    print("2. Realizar depósito")
+    print("3. Realizar retiro")
+    print("4. Saldo actual de la cuenta")
+    print("5. Transferencia entre cuentas")
+    print("6. Salir")
+
+    opcion = input("Ingrese el número de la opción deseada: ")
+
+    if opcion == "1":
+        numero_cuenta = input("Ingrese el número de cuenta: ")
+        titular = input("Ingrese el nombre del titular: ")
+        saldo_inicial = Decimal(input("Ingrese el saldo inicial: "))
+        cuentas[numero_cuenta] = CuentaBancaria(numero_cuenta, saldo_inicial, titular)
+        print("Cuenta creada exitosamente.")
+
+    elif opcion == "2":
+        numero_cuenta = input("Ingrese el número de cuenta: ")
+        if numero_cuenta in cuentas:
+            monto = Decimal(input("Ingrese el monto a depositar: "))
+            cuentas[numero_cuenta].depositar(monto)
+        else:
+            print("Cuenta no encontrada.")
+
+    elif opcion == "3":
+        numero_cuenta = input("Ingrese el número de cuenta: ")
+        if numero_cuenta in cuentas:
+            monto = Decimal(input("Ingrese el monto a retirar: "))
+            cuentas[numero_cuenta].retirar(monto)
+        else:
+            print("Cuenta no encontrada.")
+
+    elif opcion == "4":
+        numero_cuenta = input("Ingrese el número de cuenta: ")
+        if numero_cuenta in cuentas:
+            saldo = cuentas[numero_cuenta].obtener_saldo()
+            print(f"Saldo actual de la cuenta {numero_cuenta}: {saldo}")
+        else:
+            print("Cuenta no encontrada.")
+
+    elif opcion == "5":
+        num_cuenta_origen = input("Ingrese el número de cuenta de origen: ")
+        num_cuenta_destino = input("Ingrese el número de cuenta de destino: ")
+
+        if num_cuenta_origen in cuentas and num_cuenta_destino in cuentas:
+            monto = Decimal(input("Ingrese el monto a transferir: "))
+            cuentas[num_cuenta_origen].transferir(cuentas[num_cuenta_destino], monto)
+        else:
+            print("Cuenta de origen o destino no encontrada.")
+
+    elif opcion == "6":
+        print("Gracias por su visita.")
+        break
+
+    else:
+        print("Opción inválida. Por favor, ingrese una opción válida del menú.")
+def redondear(saldo):
+    self.saldo=round(saldo,2)
