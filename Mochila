@@ -1,0 +1,71 @@
+## activar por terminal pip install pulp
+class Objeto:
+    def __init__(self, peso, valor):
+        self.peso = peso
+        self.valor = valor
+    
+    def __str__(self):
+        return f"Objeto(peso={self.peso}, valor={self.valor})"
+
+class Mochila:
+    def __init__(self, capacidad_maxima):
+        self.capacidad_maxima = capacidad_maxima
+        self.objetos = []
+
+    def agregar_objeto(self, objeto):
+        self.objetos.append(objeto)
+
+    def resolver_mochila(self):
+        from pulp import LpMaximize, LpProblem, LpVariable, lpSum
+
+        # Crear el modelo de optimización
+        modelo = LpProblem(name="problema-de-la-mochila", sense=LpMaximize)
+
+        # Crear una variable binaria para cada objeto
+        variables = [LpVariable(f"x{i}", cat="Binary") for i in range(len(self.objetos))]
+
+        # Restricción: No superar la capacidad máxima de la mochila
+        modelo += lpSum(variables[i] * self.objetos[i].peso for i in range(len(self.objetos))) <= self.capacidad_maxima
+
+        # Objetivo: Maximizar el valor total
+        modelo += lpSum(variables[i] * self.objetos[i].valor for i in range(len(self.objetos)))
+
+        # Resolver el modelo
+        modelo.solve()
+
+        # Recoger los objetos seleccionados
+        objetos_seleccionados = [self.objetos[i] for i in range(len(variables)) if variables[i].value() == 1]
+        valor_total = sum(objeto.valor for objeto in objetos_seleccionados)
+        peso_total = sum(objeto.peso for objeto in objetos_seleccionados)
+
+        return objetos_seleccionados, valor_total, peso_total
+
+    def guardar_resultados(self, archivo_salida):
+        seleccionados, valor_total, peso_total = self.resolver_mochila()
+
+        # Guardar resultados en un archivo de texto
+        with open(archivo_salida, "w", encoding="utf-8") as archivo:
+            archivo.write("Objetos seleccionados:\n")
+            for obj in seleccionados:
+                archivo.write(f"{obj}\n")
+            archivo.write(f"Valor total: {valor_total}\n")
+            archivo.write(f"Peso total: {peso_total}\n")
+
+# Datos de entrada
+capacidad_maxima = 10
+objetos = [
+    Objeto(peso=5, valor=10),
+    Objeto(peso=4, valor=40),
+    Objeto(peso=6, valor=30),
+    Objeto(peso=3, valor=50)
+]
+
+# Resolución del problema
+mochila = Mochila(capacidad_maxima)
+for obj in objetos:
+    mochila.agregar_objeto(obj)
+
+# Guardar los resultados en un archivo de texto
+mochila.guardar_resultados("resultados_mochila.txt")
+
+print("Los resultados se han guardado en 'resultados_mochila.txt'.")
